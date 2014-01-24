@@ -11,7 +11,7 @@
 
 static NSString *const kKeychainPasscode = @"demoPasscode";
 static NSString *const kKeychainTimerStart = @"demoPasscodeTimerStart";
-static NSString *const kKeychainServiceName = @"demoServiceName";
+//static NSString *const kKeychainServiceName = @"demoServiceName";
 static NSString *const kUserDefaultsKeyForTimerDuration = @"passcodeTimerDuration";
 static NSString *const kPasscodeCharacter = @"\u2014"; // A longer "-"
 static CGFloat const kLabelFontSize = 15.0f;
@@ -78,11 +78,29 @@ static NSInteger const kMaxNumberOfAllowedFailedAttempts = 10;
 	BOOL _timerStartInSeconds;
 }
 
++ (NSString *)keychainServiceName
+{
+    static NSString *const kLTHKeychainServiceName = @"kLTHKeychainServiceName";
+    static NSString *_serviceName = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        NSString *name = [defaults objectForKey:kLTHKeychainServiceName];
+        if (!name) {
+            NSInteger unixtime = [NSDate date].timeIntervalSince1970;
+            name = [NSString stringWithFormat:@"%@%d", kLTHKeychainServiceName, unixtime];
+            [defaults setObject:name forKey:kLTHKeychainServiceName];
+            [defaults synchronize];
+        }
+        _serviceName = name;
+    });
+    return _serviceName;
+}
 
 #pragma mark - Class methods
 + (BOOL)passcodeExistsInKeychain {
 	return [SFHFKeychainUtils getPasswordForUsername: kKeychainPasscode
-									  andServiceName: kKeychainServiceName
+									  andServiceName: [[self class] keychainServiceName]
 											   error: nil].length != 0;
 }
 
@@ -97,7 +115,7 @@ static NSInteger const kMaxNumberOfAllowedFailedAttempts = 10;
 
 + (CGFloat)timerStartTime {
 	NSString *keychainValue = [SFHFKeychainUtils getPasswordForUsername: kKeychainTimerStart
-														 andServiceName: kKeychainServiceName
+														 andServiceName: [[self class] keychainServiceName]
 																  error: nil];
 	if (!keychainValue) return -1;
 	return keychainValue.floatValue;
@@ -107,7 +125,7 @@ static NSInteger const kMaxNumberOfAllowedFailedAttempts = 10;
 + (void)saveTimerStartTime {
 	[SFHFKeychainUtils storeUsername: kKeychainTimerStart
 						 andPassword: [NSString stringWithFormat: @"%f", [NSDate timeIntervalSinceReferenceDate]]
-					  forServiceName: kKeychainServiceName
+					  forServiceName: [[self class] keychainServiceName]
 					  updateExisting: YES
 							   error: nil];
 }
@@ -123,7 +141,7 @@ static NSInteger const kMaxNumberOfAllowedFailedAttempts = 10;
 
 + (void)deletePasscodeFromKeychain {
 	[SFHFKeychainUtils deleteItemForUsername: kKeychainPasscode
-							  andServiceName: kKeychainServiceName
+							  andServiceName: [[self class] keychainServiceName]
 									   error: nil];
 }
 
@@ -387,7 +405,7 @@ static NSInteger const kMaxNumberOfAllowedFailedAttempts = 10;
 			else {
 				[SFHFKeychainUtils storeUsername: kKeychainPasscode
 									 andPassword: _tempPasscode
-								  forServiceName: kKeychainServiceName
+								  forServiceName: [[self class] keychainServiceName]
 								  updateExisting: YES
 										   error: nil];
 			}
@@ -580,7 +598,7 @@ static NSInteger const kMaxNumberOfAllowedFailedAttempts = 10;
 	
 	if (typedString.length == 4) {
 		NSString *savedPasscode = [SFHFKeychainUtils getPasswordForUsername: kKeychainPasscode
-															 andServiceName: kKeychainServiceName
+															 andServiceName: [[self class] keychainServiceName]
 																	  error: nil];
 		// Entering from Settings. If savedPasscode is empty, it means
 		// the user is setting a new Passcode now, or is changing his current Passcode.
@@ -724,7 +742,7 @@ static NSInteger const kMaxNumberOfAllowedFailedAttempts = 10;
 	_passcodeTextField.text = @"";
 	// If there's no passcode saved in Keychain, the user is adding one for the first time, otherwise he's changing his passcode.
 	NSString *savedPasscode = [SFHFKeychainUtils getPasswordForUsername: kKeychainPasscode
-														 andServiceName: kKeychainServiceName
+														 andServiceName: [[self class] keychainServiceName]
 																  error: nil];
 	_enterPasscodeLabel.text = savedPasscode.length == 0 ? NSLocalizedString(@"Enter your passcode", @"") : NSLocalizedString(@"Enter your new passcode", @"");
 	

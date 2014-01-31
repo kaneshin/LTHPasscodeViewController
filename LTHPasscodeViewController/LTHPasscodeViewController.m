@@ -9,6 +9,7 @@
 #import "LTHPasscodeViewController.h"
 #import "SFHFKeychainUtils.h"
 
+static NSString *const kLTHPasscodeLocalizableTableName = @"LTHPasscodeLocalizable";
 static NSString *const kKeychainPasscode = @"demoPasscode";
 static NSString *const kKeychainTimerStart = @"demoPasscodeTimerStart";
 //static NSString *const kKeychainServiceName = @"demoServiceName";
@@ -224,7 +225,9 @@ static NSInteger const kMaxNumberOfAllowedFailedAttempts = 10;
 	[_passcodeTextField becomeFirstResponder];
     [_animatingView addSubview:_passcodeTextField];
 	
-	_enterPasscodeLabel.text = _isUserChangingPasscode ? NSLocalizedString(@"Enter your old passcode", @"") : NSLocalizedString(@"Enter your passcode", @"");
+	_enterPasscodeLabel.text = _isUserChangingPasscode
+    ? NSLocalizedStringFromTable(@"Enter your old passcode", kLTHPasscodeLocalizableTableName, @"")
+    : NSLocalizedStringFromTable(@"Enter your passcode", kLTHPasscodeLocalizableTableName, @"");
 	
 	_enterPasscodeLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	_failedAttemptLabel.translatesAutoresizingMaskIntoConstraints = NO;
@@ -510,21 +513,21 @@ static NSInteger const kMaxNumberOfAllowedFailedAttempts = 10;
 - (void)showForEnablingPasscodeInViewController:(UIViewController *)viewController {
 	[self prepareForEnablingPasscode];
 	[self prepareNavigationControllerWithController: viewController];
-	self.title = NSLocalizedString(@"Enable Passcode", @"");
+	self.title = NSLocalizedStringFromTable(@"Enable Passcode", kLTHPasscodeLocalizableTableName, @"");
 }
 
 
 - (void)showForChangingPasscodeInViewController:(UIViewController *)viewController {
 	[self prepareForChangingPasscode];
 	[self prepareNavigationControllerWithController: viewController];
-	self.title = NSLocalizedString(@"Change Passcode", @"");
+	self.title = NSLocalizedStringFromTable(@"Change Passcode", kLTHPasscodeLocalizableTableName, @"");
 }
 
 
 - (void)showForTurningOffPasscodeInViewController:(UIViewController *)viewController {
 	[self prepareForTurningOffPasscode];
 	[self prepareNavigationControllerWithController: viewController];
-	self.title = NSLocalizedString(@"Turn Off Passcode", @"");
+	self.title = NSLocalizedStringFromTable(@"Turn Off Passcode", kLTHPasscodeLocalizableTableName, @"");
 }
 
 
@@ -725,15 +728,15 @@ static NSInteger const kMaxNumberOfAllowedFailedAttempts = 10;
 	_failedAttemptLabel.hidden = YES;
 	_passcodeTextField.text = @"";
 	if (_isUserConfirmingPasscode) {
-		if (_isUserEnablingPasscode) _enterPasscodeLabel.text = NSLocalizedString(@"Re-enter your passcode", @"");
-		else if (_isUserChangingPasscode) _enterPasscodeLabel.text = NSLocalizedString(@"Re-enter your new passcode", @"");
+		if (_isUserEnablingPasscode) _enterPasscodeLabel.text = NSLocalizedStringFromTable(@"Re-enter your passcode", kLTHPasscodeLocalizableTableName, @"");
+		else if (_isUserChangingPasscode) _enterPasscodeLabel.text = NSLocalizedStringFromTable(@"Re-enter your new passcode", kLTHPasscodeLocalizableTableName, @"");
 	}
 	else if (_isUserBeingAskedForNewPasscode) {
 		if (_isUserEnablingPasscode || _isUserChangingPasscode) {
-			_enterPasscodeLabel.text = NSLocalizedString(@"Enter your new passcode", @"");
+			_enterPasscodeLabel.text = NSLocalizedStringFromTable(@"Enter your new passcode", kLTHPasscodeLocalizableTableName, @"");
 		}
 	}
-	else _enterPasscodeLabel.text = NSLocalizedString(@"Enter your passcode", @"");
+	else _enterPasscodeLabel.text = NSLocalizedStringFromTable(@"Enter your passcode", kLTHPasscodeLocalizableTableName, @"");
 }
 
 
@@ -744,10 +747,12 @@ static NSInteger const kMaxNumberOfAllowedFailedAttempts = 10;
 	NSString *savedPasscode = [SFHFKeychainUtils getPasswordForUsername: kKeychainPasscode
 														 andServiceName: [[self class] keychainServiceName]
 																  error: nil];
-	_enterPasscodeLabel.text = savedPasscode.length == 0 ? NSLocalizedString(@"Enter your passcode", @"") : NSLocalizedString(@"Enter your new passcode", @"");
+	_enterPasscodeLabel.text = savedPasscode.length == 0
+    ? NSLocalizedStringFromTable(@"Enter your passcode", kLTHPasscodeLocalizableTableName, @"")
+    : NSLocalizedStringFromTable(@"Enter your new passcode", kLTHPasscodeLocalizableTableName, @"");
 	
 	_failedAttemptLabel.hidden = NO;
-	_failedAttemptLabel.text = NSLocalizedString(@"Passcodes did not match. Try again.", @"");
+	_failedAttemptLabel.text = NSLocalizedStringFromTable(@"Passcodes did not match. Try again.", kLTHPasscodeLocalizableTableName, @"");
 	_failedAttemptLabel.backgroundColor = [UIColor clearColor];
 	_failedAttemptLabel.layer.borderWidth = 0;
 	_failedAttemptLabel.layer.borderColor = [UIColor clearColor].CGColor;
@@ -769,9 +774,9 @@ static NSInteger const kMaxNumberOfAllowedFailedAttempts = 10;
 //														object: self
 //													  userInfo: nil];
 	
-	if (_failedAttempts == 1) _failedAttemptLabel.text = NSLocalizedString(@"1 Passcode Failed Attempt", @"");
+	if (_failedAttempts == 1) _failedAttemptLabel.text = NSLocalizedStringFromTable(@"1 Passcode Failed Attempt", kLTHPasscodeLocalizableTableName, @"");
 	else {
-		_failedAttemptLabel.text = [NSString stringWithFormat: NSLocalizedString(@"%i Passcode Failed Attempts", @""), _failedAttempts];
+		_failedAttemptLabel.text = [NSString stringWithFormat: NSLocalizedStringFromTable(@"%i Passcode Failed Attempts", kLTHPasscodeLocalizableTableName, @""), _failedAttempts];
 	}
 	_failedAttemptLabel.layer.cornerRadius = kFailedAttemptLabelHeight * 0.65f;
 	_failedAttemptLabel.hidden = NO;
